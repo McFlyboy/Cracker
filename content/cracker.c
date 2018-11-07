@@ -18,10 +18,9 @@ int crackByBruteforce(char * password, char * salt, char * hash, int charPos) {
 			}
 		}
 		else if(charPos == 0) {
-			printf("%s\n", password);
 			char * test = crypt(password, salt);
 			if(strncmp(test, hash, normalHashLength) == 0) {
-				printf("Password \"%s\"\n", password);
+				printf("Found password: %s\n", password);
 				return 1;
 			}
 		}
@@ -36,12 +35,12 @@ int crackByDictionary(char * password, char * salt, char * hash) {
 		for(int i = 0; i < maxPasswordLength; i++) {
 			if(*(password + i) == '\n') {
 				*(password + i) = '\0';
+				break;
 			}
 		}
-		printf("%s\n", password);
 		char * test = crypt(password, salt);
 		if(strncmp(test, hash, normalHashLength) == 0) {
-			printf("Password \"%s\"\n", password);
+			printf("Found password: %s\n", password);
 			successStatus = 1;
 			break;
 		}
@@ -51,16 +50,19 @@ int crackByDictionary(char * password, char * salt, char * hash) {
 }
 int main (int argc, char * argv[]) {
 	if(argc != 2) {
+		printf("Wrong. Correct use: \ncracker <hash>\n");
 		return -1;
 	}
 	char * hash = argv[1];
 	char salt[13] ;
 	strncpy(salt, hash, 12);
 	char * password = (char *)malloc(sizeof(char) * maxPasswordLength);
+	printf("Guessing passwords from dictionary...\n");
 	if(crackByDictionary(password, salt, hash) == 0) {
 		for(int i = 0; i < maxPasswordLength; i++) {
 			*(password + i) = '\0';
 		}
+		printf("Guessing passwords by brute-forcing...\n");
 		if(crackByBruteforce(password, salt, hash, maxPasswordLength - 1) == 0) {
 			printf("Failed\n");
 		}
